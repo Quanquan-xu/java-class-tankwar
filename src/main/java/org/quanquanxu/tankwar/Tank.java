@@ -9,22 +9,28 @@ public class Tank {
     private int x;
     private int y;
     private boolean isUp, isDown, isLeft, isRight;
+    private boolean isEnemy;
     private Direction direction;
     public Tank(int x, int y, Direction direction){
+        this(x,y,direction, true);
+    }
+    public Tank(int x, int y, Direction direction, boolean isEnemy){
         this.x = x;
         this.y = y;
+        this.isEnemy = isEnemy;
         this.direction = direction;
     }
     public Image getImage(){
+        String tankPrefix = this.isEnemy? "e": "";
         switch (this.direction){
-            case UP:return new ImageIcon("assets/images/tankU.gif").getImage();
-            case DOWN:return new ImageIcon("assets/images/tankD.gif").getImage();
-            case LEFT:return new ImageIcon("assets/images/tankL.gif").getImage();
-            case RIGHT:return new ImageIcon("assets/images/tankR.gif").getImage();
-            case UPLEFT:return new ImageIcon("assets/images/tankLU.gif").getImage();
-            case UPRIGHT:return new ImageIcon("assets/images/tankRU.gif").getImage();
-            case DOWNLEFT:return new ImageIcon("assets/images/tankLD.gif").getImage();
-            case DOWNRIGHT:return new ImageIcon("assets/images/tankRD.gif").getImage();
+            case UP:return new ImageIcon("assets/images/"+ tankPrefix + "tankU.gif").getImage();
+            case DOWN:return new ImageIcon("assets/images/"+ tankPrefix + "tankD.gif").getImage();
+            case LEFT:return new ImageIcon("assets/images/"+ tankPrefix + "tankL.gif").getImage();
+            case RIGHT:return new ImageIcon("assets/images/"+ tankPrefix + "tankR.gif").getImage();
+            case UPLEFT:return new ImageIcon("assets/images/"+ tankPrefix + "tankLU.gif").getImage();
+            case UPRIGHT:return new ImageIcon("assets/images/"+ tankPrefix + "tankRU.gif").getImage();
+            case DOWNLEFT:return new ImageIcon("assets/images/"+ tankPrefix + "tankLD.gif").getImage();
+            case DOWNRIGHT:return new ImageIcon("assets/images/"+ tankPrefix + "tankRD.gif").getImage();
         }
         return null;
     }
