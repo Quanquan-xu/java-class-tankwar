@@ -88,7 +88,7 @@ public class Tank {
         if (this.isRight){
             this.x += 5;
         }
-
+        this.borderLimit();
     }
     private void determineDirection(){
         if (this.isUp &&  !this.isDown && !this.isLeft && !this.isRight){
@@ -112,6 +112,24 @@ public class Tank {
             this.isDown = false;
             this.isLeft = false;
             this.isRight = false;
+        }
+    }
+    private void borderLimit(){
+        int gameBoardWidth = 800;
+        int gameBoardHeight = 600;
+        int tankWidth = this.getImage().getWidth(null);
+        int tankHeight = this.getImage().getHeight(null);
+        int tankXMaxBorder = gameBoardWidth - tankWidth;
+        int tankYMaxBorder = gameBoardHeight - tankHeight;
+        if (this.x < 0){
+            this.x = 0;
+        }else if (this.x > tankXMaxBorder){
+            this.x = tankXMaxBorder;
+        }
+        if (this.y < 0){
+            this.y = 0;
+        }else if (this.y > tankYMaxBorder){
+            this.y = tankYMaxBorder;
         }
     }
 
