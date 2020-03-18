@@ -3,7 +3,7 @@ package org.quanquanxu.tankwar;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.security.Key;
+import java.util.List;
 
 public class Tank {
     private int x;
@@ -70,10 +70,16 @@ public class Tank {
 
     }
     public void drawTank(Graphics g) {
+        int previousX = this.x;
+        int previousY = this.y;
         this.determineDirection();
         this.move();
+        boolean isCollided = this.intersectionDetect();
+        if (isCollided){
+            this.x = previousX;
+            this.y = previousY;
+        }
         g.drawImage(this.getImage(), this.x, this.y, null);
-
     }
     private void move(){
         if (this.isUp){
@@ -117,8 +123,9 @@ public class Tank {
     private void borderLimit(){
         int gameBoardWidth = 800;
         int gameBoardHeight = 600;
-        int tankWidth = this.getImage().getWidth(null);
-        int tankHeight = this.getImage().getHeight(null);
+        Image tankImage = this.getImage();
+        int tankWidth = tankImage.getWidth(null);
+        int tankHeight = tankImage.getHeight(null);
         int tankXMaxBorder = gameBoardWidth - tankWidth;
         int tankYMaxBorder = gameBoardHeight - tankHeight;
         if (this.x < 0){
@@ -131,6 +138,35 @@ public class Tank {
         }else if (this.y > tankYMaxBorder){
             this.y = tankYMaxBorder;
         }
+    }
+    private boolean intersectionDetect(){
+        boolean isIntersected = false;
+        Rectangle tankBorder = this.getTankBorder();
+        List<Wall> walls = GameClient.getInstance().getWalls();
+        List<Tank> enemyTanks = GameClient.getInstance().getEnemyTanks();
+        for (Wall wall : walls){
+            Rectangle wallBorder = wall.getWallBorder();
+            if(wallBorder.intersects(tankBorder)){
+                isIntersected = true;
+                break;
+            }
+        }
+        if (!isIntersected){
+            for(Tank enemyTank: enemyTanks){
+                Rectangle enemyTankBorder = enemyTank.getTankBorder();
+                if(enemyTankBorder.intersects(tankBorder)){
+                    isIntersected = true;
+                    break;
+                }
+            }
+        }
+
+        return isIntersected;
+    }
+
+    public Rectangle getTankBorder(){
+        Image tankImage = this.getImage();
+        return new Rectangle(this.x, this.y, tankImage.getWidth(null), tankImage.getHeight(null));
     }
 
 }

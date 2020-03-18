@@ -13,6 +13,10 @@ public class GameClient extends JComponent{
     private Tank playerTank;
     private List<Tank> enemyTanks;
     private List<Wall> walls;
+    private static final GameClient INSTANCE = new GameClient();
+    public static GameClient getInstance(){
+        return INSTANCE;
+    }
     private  GameClient(){
         int gameBoardWidth = 800;
         int gameBoardHeight = 600;
@@ -34,6 +38,14 @@ public class GameClient extends JComponent{
             }
         }
         this.setPreferredSize(new Dimension(gameBoardWidth,gameBoardHeight));
+    }
+
+    public List<Tank> getEnemyTanks() {
+        return enemyTanks;
+    }
+
+    public List<Wall> getWalls() {
+        return walls;
     }
 
     @Override
