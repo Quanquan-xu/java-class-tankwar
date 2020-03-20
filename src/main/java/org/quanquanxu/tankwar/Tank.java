@@ -21,18 +21,8 @@ public class Tank {
         this.direction = direction;
     }
     public Image getImage(){
-        String tankPrefix = this.isEnemy? "e": "";
-        switch (this.direction){
-            case UP:return new ImageIcon("assets/images/"+ tankPrefix + "tankU.gif").getImage();
-            case DOWN:return new ImageIcon("assets/images/"+ tankPrefix + "tankD.gif").getImage();
-            case LEFT:return new ImageIcon("assets/images/"+ tankPrefix + "tankL.gif").getImage();
-            case RIGHT:return new ImageIcon("assets/images/"+ tankPrefix + "tankR.gif").getImage();
-            case UPLEFT:return new ImageIcon("assets/images/"+ tankPrefix + "tankLU.gif").getImage();
-            case UPRIGHT:return new ImageIcon("assets/images/"+ tankPrefix + "tankRU.gif").getImage();
-            case DOWNLEFT:return new ImageIcon("assets/images/"+ tankPrefix + "tankLD.gif").getImage();
-            case DOWNRIGHT:return new ImageIcon("assets/images/"+ tankPrefix + "tankRD.gif").getImage();
-        }
-        return null;
+        String prefix = this.isEnemy? "e": "";
+        return Toolkit.getFormatImage(this.direction, "tank", prefix);
     }
     public void keyPressed(KeyEvent e){
         switch (e.getKeyCode()){
@@ -48,9 +38,18 @@ public class Tank {
             case KeyEvent.VK_RIGHT:
                 this.isRight = true;
                 break;
+            case KeyEvent.VK_CONTROL:
+                this.fire();
+                break;
         }
 
     }
+
+    private void fire() {
+        Missile missile = new Missile(this.x, this.y, this.direction, this.isEnemy);
+        GameClient.getInstance().getMissiles().add(missile);
+    }
+
     public void keyReleased(KeyEvent e){
         switch (e.getKeyCode()){
             case KeyEvent.VK_UP:

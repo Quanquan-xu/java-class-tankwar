@@ -22,7 +22,7 @@ public class Wall {
                 brickImage.getHeight(null)) : new Rectangle(this.x, this.y,
                 brickImage.getWidth(null), brickNumber*brickImage.getHeight(null));
     }
-    public void draw(Graphics g){
+    public void drawWall(Graphics g){
         if (isHorizontal){
             for (int i=0; i< this.brickNumber; i++){
                 g.drawImage(brickImage, x + i*brickImage.getWidth(null), y, null);

@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,6 +12,7 @@ public class GameClient extends JComponent{
     private Tank playerTank;
     private List<Tank> enemyTanks;
     private List<Wall> walls;
+    private List<Missile> missiles = new ArrayList<>();
     private static final GameClient INSTANCE = new GameClient();
     public static GameClient getInstance(){
         return INSTANCE;
@@ -48,6 +48,10 @@ public class GameClient extends JComponent{
         return walls;
     }
 
+    public List<Missile> getMissiles() {
+        return missiles;
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         g.setColor(Color.BLACK);
@@ -58,7 +62,10 @@ public class GameClient extends JComponent{
             tank.drawTank(g);
         }
         for (Wall wall: this.walls){
-            wall.draw(g);
+            wall.drawWall(g);
+        }
+        for(Missile missile: this.missiles){
+            missile.drawMissile(g);
         }
     }
 
@@ -66,7 +73,7 @@ public class GameClient extends JComponent{
         JFrame frame = new JFrame();
         frame.setTitle("The Most Boring Tank War in the World");
         frame.setIconImage(new ImageIcon("assets/images/icon.png").getImage());
-        final GameClient client = new GameClient();
+        final GameClient client = GameClient.getInstance();
         frame.add(client);
         //frame.setPreferredSize(new Dimension(800,600));
         frame.pack();
@@ -75,17 +82,23 @@ public class GameClient extends JComponent{
             @Override
             public void keyPressed(KeyEvent e) {
                 client.playerTank.keyPressed(e);
-                client.repaint();
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
                 client.playerTank.keyReleased(e);
-                client.repaint();
             }
         });
         frame.setVisible(true);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        while(true){
+            client.repaint();
+            try{
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
 
     }
 }
