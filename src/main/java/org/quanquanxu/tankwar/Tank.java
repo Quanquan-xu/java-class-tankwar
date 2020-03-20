@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.List;
+import java.util.Random;
 
 public class Tank {
     private int x;
@@ -26,7 +27,7 @@ public class Tank {
     }
     public Image getImage(){
         String prefix = this.isEnemy? "e": "";
-        return Toolkit.getFormatImage(this.direction, "tank", prefix);
+        return Toolkit.getFormatImage("tank", prefix, this.direction.getAbbrev());
     }
     public void keyPressed(KeyEvent e){
         switch (e.getKeyCode()){
@@ -45,6 +46,9 @@ public class Tank {
             case KeyEvent.VK_CONTROL:
                 this.fire();
                 break;
+            case KeyEvent.VK_A:
+                this.superFire();
+                break;
         }
 
     }
@@ -52,12 +56,23 @@ public class Tank {
     private void fire() {
         Missile missile = new Missile(this.x, this.y, this.direction, this.isEnemy);
         GameClient.getInstance().getMissiles().add(missile);
-        String musicFile = "assets/audios/shoot.wav";
-        Media sound = new Media(new File(musicFile).toURI().toString());
+        String soundFile = "assets/audios/shoot.wav";
+        this.fireSound(soundFile);
+
+    }
+    private void superFire(){
+        for(Direction direction: Direction.values()){
+            Missile missile = new Missile(this.x, this.y, direction, this.isEnemy);
+            GameClient.getInstance().getMissiles().add(missile);
+        }
+        String soundFile = new Random().nextBoolean()? "assets/audios/supershoot.wav": "assets/audios/supershoot.aiff";
+        this.fireSound(soundFile);
+    }
+    private void fireSound(String soundFile){
+        Media sound = new Media(new File(soundFile).toURI().toString());
         MediaPlayer mediaPlayer = new MediaPlayer(sound);
         mediaPlayer.play();
     }
-
     public void keyReleased(KeyEvent e){
         switch (e.getKeyCode()){
             case KeyEvent.VK_UP:
@@ -107,15 +122,15 @@ public class Tank {
         if (this.isUp &&  !this.isDown && !this.isLeft && !this.isRight){
             this.direction = Direction.UP;
         }else if (this.isUp && !this.isDown && this.isLeft && !this.isRight){
-            this.direction = Direction.UPLEFT;
+            this.direction = Direction.LEFT_UP;
         } else if (this.isUp && !this.isDown && !this.isLeft && this.isRight){
-            this.direction = Direction.UPRIGHT;
+            this.direction = Direction.RIGHT_UP;
         }else if (!this.isUp && this.isDown && !this.isLeft && !this.isRight){
             this.direction = Direction.DOWN;
         }else if (!this.isUp && this.isDown && this.isLeft && !this.isRight){
-            this.direction = Direction.DOWNLEFT;
+            this.direction = Direction.LEFT_DOWN;
         }else if (!this.isUp && this.isDown && !this.isLeft && this.isRight){
-            this.direction = Direction.DOWNRIGHT;
+            this.direction = Direction.RIGHT_DOWN;
         }else if (!this.isUp && !this.isDown && this.isLeft && !this.isRight){
             this.direction = Direction.LEFT;
         }else if (!this.isUp && !this.isDown && !this.isLeft && this.isRight){

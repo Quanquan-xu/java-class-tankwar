@@ -41,26 +41,26 @@ public class Missile {
               this.speedX = SPEED;
               this.speedY = 0;
               break;
-          case UPLEFT:
+          case LEFT_UP:
               this.x = x + 15;
               this.y = y + 15;
               this.speedX = -SPEED;
               this.speedY = -SPEED;
               break;
 
-          case UPRIGHT:
+          case RIGHT_UP:
               this.x = x + 15;
               this.y = y + 15;
               this.speedX = SPEED;
               this.speedY = -SPEED;
               break;
-          case DOWNLEFT:
+          case LEFT_DOWN:
               this.x = x + 15;
               this.y = y + 15;
               this.speedX = -SPEED;
               this.speedY = SPEED;
               break;
-          case DOWNRIGHT:
+          case RIGHT_DOWN:
               this.x = x + 15;
               this.y = y + 15;
               this.speedX = SPEED;
@@ -72,7 +72,7 @@ public class Missile {
     public Image getImage(){
         String id = "missile";
         String prefix = "";
-        return Toolkit.getFormatImage(this.direction,id,prefix);
+        return Toolkit.getFormatImage(id,prefix,this.direction.getAbbrev());
     }
     public void drawMissile(Graphics g) {
         this.moveMissile();
