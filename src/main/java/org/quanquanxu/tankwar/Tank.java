@@ -1,8 +1,12 @@
 package org.quanquanxu.tankwar;
 
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.util.List;
 
 public class Tank {
@@ -48,6 +52,10 @@ public class Tank {
     private void fire() {
         Missile missile = new Missile(this.x, this.y, this.direction, this.isEnemy);
         GameClient.getInstance().getMissiles().add(missile);
+        String musicFile = "assets/audios/shoot.wav";
+        Media sound = new Media(new File(musicFile).toURI().toString());
+        MediaPlayer mediaPlayer = new MediaPlayer(sound);
+        mediaPlayer.play();
     }
 
     public void keyReleased(KeyEvent e){

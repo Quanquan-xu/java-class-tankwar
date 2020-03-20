@@ -70,6 +70,7 @@ public class GameClient extends JComponent{
     }
 
     public static void main(String[] args) {
+        com.sun.javafx.application.PlatformImpl.startup(()->{});
         JFrame frame = new JFrame();
         frame.setTitle("The Most Boring Tank War in the World");
         frame.setIconImage(new ImageIcon("assets/images/icon.png").getImage());
