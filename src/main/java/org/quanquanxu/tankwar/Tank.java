@@ -3,10 +3,8 @@ package org.quanquanxu.tankwar;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.io.File;
 import java.util.List;
 import java.util.Random;
 
@@ -16,6 +14,7 @@ public class Tank {
     private boolean isUp, isDown, isLeft, isRight;
     private boolean isEnemy;
     private Direction direction;
+    private boolean isAlive = true;
     public Tank(int x, int y, Direction direction){
         this(x,y,direction, true);
     }
@@ -25,9 +24,10 @@ public class Tank {
         this.isEnemy = isEnemy;
         this.direction = direction;
     }
-    public Image getImage(){
+    public Image getTankImage(){
+        String name = "tank";
         String prefix = this.isEnemy? "e": "";
-        return Toolkit.getFormatImage("tank", prefix, this.direction.getAbbrev());
+        return Toolkit.getFormatImage(name, prefix, this.direction.getAbbrev(), ".gif");
     }
     public void keyPressed(KeyEvent e){
         switch (e.getKeyCode()){
@@ -50,29 +50,8 @@ public class Tank {
                 this.superFire();
                 break;
         }
-
     }
 
-    private void fire() {
-        Missile missile = new Missile(this.x, this.y, this.direction, this.isEnemy);
-        GameClient.getInstance().getMissiles().add(missile);
-        String soundFile = "assets/audios/shoot.wav";
-        this.fireSound(soundFile);
-
-    }
-    private void superFire(){
-        for(Direction direction: Direction.values()){
-            Missile missile = new Missile(this.x, this.y, direction, this.isEnemy);
-            GameClient.getInstance().getMissiles().add(missile);
-        }
-        String soundFile = new Random().nextBoolean()? "assets/audios/supershoot.wav": "assets/audios/supershoot.aiff";
-        this.fireSound(soundFile);
-    }
-    private void fireSound(String soundFile){
-        Media sound = new Media(new File(soundFile).toURI().toString());
-        MediaPlayer mediaPlayer = new MediaPlayer(sound);
-        mediaPlayer.play();
-    }
     public void keyReleased(KeyEvent e){
         switch (e.getKeyCode()){
             case KeyEvent.VK_UP:
@@ -88,37 +67,43 @@ public class Tank {
                 this.isRight = false;
                 break;
         }
+    }
 
+    private void fire() {
+        Missile missile = new Missile(this.x, this.y, this.direction, this.isEnemy);
+        GameClient.getInstance().getMissiles().add(missile);
+        String soundFile = Toolkit.getAudiosFile("shoot",".wav");
+        this.playFireSound(soundFile);
 
     }
+    private void superFire(){
+        for(Direction direction: Direction.values()){
+            Missile missile = new Missile(this.x, this.y, direction, this.isEnemy);
+            GameClient.getInstance().getMissiles().add(missile);
+        }
+        String fileExtension = new Random().nextBoolean()? ".wav": ".aiff";
+        String soundFile = Toolkit.getAudiosFile("supershoot", fileExtension);
+        this.playFireSound(soundFile);
+    }
+    private void playFireSound(String soundFile){
+        Media sound = new Media(soundFile);
+        MediaPlayer mediaPlayer = new MediaPlayer(sound);
+        mediaPlayer.play();
+    }
+
     public void drawTank(Graphics g) {
         int previousX = this.x;
         int previousY = this.y;
-        this.determineDirection();
-        this.move();
-        boolean isCollided = this.intersectionDetect();
+        this.determineTankDirection();
+        this.moveTank();
+        boolean isCollided = this.detectIntersection();
         if (isCollided){
             this.x = previousX;
             this.y = previousY;
         }
-        g.drawImage(this.getImage(), this.x, this.y, null);
+        g.drawImage(this.getTankImage(), this.x, this.y, null);
     }
-    private void move(){
-        if (this.isUp){
-            this.y -= 5;
-        }
-        if (this.isDown){
-            this.y += 5;
-        }
-        if (this.isLeft){
-            this.x -=5;
-        }
-        if (this.isRight){
-            this.x += 5;
-        }
-        this.borderLimit();
-    }
-    private void determineDirection(){
+    private void determineTankDirection(){
         if (this.isUp &&  !this.isDown && !this.isLeft && !this.isRight){
             this.direction = Direction.UP;
         }else if (this.isUp && !this.isDown && this.isLeft && !this.isRight){
@@ -142,10 +127,19 @@ public class Tank {
             this.isRight = false;
         }
     }
+    private void moveTank(){
+        int moveSpeed = 5;
+        if (this.isUp|| this.isDown|| this.isLeft|| this.isRight){
+            this.x += this.direction.getXFactor()*moveSpeed;
+            this.y += this.direction.getYFactor()*moveSpeed;
+            this.borderLimit();
+        }
+    }
+
     private void borderLimit(){
         int gameBoardWidth = 800;
         int gameBoardHeight = 600;
-        Image tankImage = this.getImage();
+        Image tankImage = this.getTankImage();
         int tankWidth = tankImage.getWidth(null);
         int tankHeight = tankImage.getHeight(null);
         int tankXMaxBorder = gameBoardWidth - tankWidth;
@@ -161,7 +155,7 @@ public class Tank {
             this.y = tankYMaxBorder;
         }
     }
-    private boolean intersectionDetect(){
+    private boolean detectIntersection(){
         boolean isIntersected = false;
         Rectangle tankBorder = this.getTankBorder();
         List<Wall> walls = GameClient.getInstance().getWalls();
@@ -187,8 +181,14 @@ public class Tank {
     }
 
     public Rectangle getTankBorder(){
-        Image tankImage = this.getImage();
+        Image tankImage = this.getTankImage();
         return new Rectangle(this.x, this.y, tankImage.getWidth(null), tankImage.getHeight(null));
     }
+    public void destroyTank(){
+        this.isAlive = false;
+    }
 
+    public boolean isAlive() {
+        return isAlive;
+    }
 }
