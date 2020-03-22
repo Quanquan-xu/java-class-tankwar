@@ -50,6 +50,8 @@ public class Missile {
             Rectangle playerTankBorder = playerTank.getTankBorder();
             if (playerTankBorder.intersects(missileBorder)) {
                 isIntersected = true;
+                playerTank.removeHealthPoints();
+                this.performExplosionEffect(playerTank.getX()+this.xOffsetOfMissileToTank, playerTank.getY()+this.yOffsetOfMissileToTank);
             }
         }
         else {

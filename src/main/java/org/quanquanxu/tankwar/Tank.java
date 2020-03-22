@@ -15,6 +15,7 @@ public class Tank {
     private boolean isEnemy;
     private Direction direction;
     private boolean isAlive = true;
+    private int healthPoints = 100;
     public Tank(int x, int y, Direction direction){
         this(x,y,direction, true);
     }
@@ -48,6 +49,9 @@ public class Tank {
                 break;
             case KeyEvent.VK_A:
                 this.superFire();
+                break;
+            case KeyEvent.VK_S:
+                GameClient.getInstance().restart();
                 break;
         }
     }
@@ -93,6 +97,9 @@ public class Tank {
             this.x = previousX;
             this.y = previousY;
         }
+        if(!this.isEnemy){
+            this.drawHealthPoints(g);
+        }
         g.drawImage(this.getTankImage(), this.x, this.y, null);
     }
     private void determineTankDirection(){
@@ -121,7 +128,7 @@ public class Tank {
     }
     private void moveTank(){
         int moveSpeed = 5;
-        if (this.isUp|| this.isDown|| this.isLeft|| this.isRight){
+        if (this.isUp|| this.isDown|| this.isLeft|| this.isRight||this.isEnemy){
             this.x += this.direction.getXFactor()*moveSpeed;
             this.y += this.direction.getYFactor()*moveSpeed;
             this.borderLimit();
@@ -152,6 +159,7 @@ public class Tank {
         Rectangle tankBorder = this.getTankBorder();
         List<Wall> walls = GameClient.getInstance().getWalls();
         List<Tank> enemyTanks = GameClient.getInstance().getEnemyTanks();
+        Tank playerTank = GameClient.getInstance().getPlayerTank();
         for (Wall wall : walls){
             Rectangle wallBorder = wall.getWallBorder();
             if(wallBorder.intersects(tankBorder)){
@@ -162,9 +170,15 @@ public class Tank {
         if (!isIntersected){
             for(Tank enemyTank: enemyTanks){
                 Rectangle enemyTankBorder = enemyTank.getTankBorder();
-                if(enemyTankBorder.intersects(tankBorder)){
+                if(enemyTank!= this && enemyTankBorder.intersects(tankBorder)){
                     isIntersected = true;
                     break;
+                }
+            }
+            if(this.isEnemy){
+                Rectangle playerTankBorder = playerTank.getTankBorder();
+                if(tankBorder.intersects(playerTankBorder)){
+                    isIntersected = true;
                 }
             }
         }
@@ -190,5 +204,32 @@ public class Tank {
 
     public int getY() {
         return y;
+    }
+    private void drawHealthPoints(Graphics g){
+        g.setColor(Color.WHITE);
+        g.fillRect(this.x,this.y-10,this.getTankImage().getWidth(null),10);
+        g.setColor(Color.RED);
+        int healthPointsWidth = healthPoints*this.getTankImage().getWidth(null)/100;
+        g.fillRect(this.x,this.y-10,healthPointsWidth,10);
+    }
+    public void removeHealthPoints(){
+        this.healthPoints -= 20;
+        if (this.healthPoints <= 0){
+            this.destroyTank();
+        }
+    }
+    private final Random random = new Random();
+    private int step = random.nextInt(12) + 3;
+    public void actRandomly() {
+        Direction [] dirs = Direction.values();
+        if (step==0){
+            step = random.nextInt(12)+3;
+            this.direction = dirs[random.nextInt(dirs.length)];
+            if (random.nextBoolean()){
+                this.fire();
+            }
+            //this.moveTank();
+        }
+        step--;
     }
 }
