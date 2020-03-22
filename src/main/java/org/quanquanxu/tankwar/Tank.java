@@ -72,9 +72,7 @@ public class Tank {
     private void fire() {
         Missile missile = new Missile(this.x, this.y, this.direction, this.isEnemy);
         GameClient.getInstance().getMissiles().add(missile);
-        String soundFile = Toolkit.getAudiosFile("shoot",".wav");
-        this.playFireSound(soundFile);
-
+        Toolkit.playAudioSound("shoot",".wav");
     }
     private void superFire(){
         for(Direction direction: Direction.values()){
@@ -82,13 +80,7 @@ public class Tank {
             GameClient.getInstance().getMissiles().add(missile);
         }
         String fileExtension = new Random().nextBoolean()? ".wav": ".aiff";
-        String soundFile = Toolkit.getAudiosFile("supershoot", fileExtension);
-        this.playFireSound(soundFile);
-    }
-    private void playFireSound(String soundFile){
-        Media sound = new Media(soundFile);
-        MediaPlayer mediaPlayer = new MediaPlayer(sound);
-        mediaPlayer.play();
+        Toolkit.playAudioSound("supershoot", fileExtension);
     }
 
     public void drawTank(Graphics g) {
@@ -190,5 +182,13 @@ public class Tank {
 
     public boolean isAlive() {
         return isAlive;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
     }
 }

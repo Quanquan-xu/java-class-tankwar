@@ -59,6 +59,7 @@ public class Missile {
                 if (enemyTankBorder.intersects(missileBorder)) {
                     isIntersected = true;
                     enemyTank.destroyTank();
+                    this.performExplosionEffect(enemyTank.getX()+this.xOffsetOfMissileToTank, enemyTank.getY()+this.yOffsetOfMissileToTank);
                     break;
                 }
             }
@@ -76,7 +77,11 @@ public class Missile {
         return isIntersected;
     }
 
-
+    private void performExplosionEffect(int x, int y){
+        Explosion explosion = new Explosion(x, y);
+        GameClient.getInstance().getExplosions().add(explosion);
+        Toolkit.playAudioSound("explode",".wav");
+    }
     public Rectangle getMissileBorder() {
         Image missileImage = this.getMissileImage();
         return new Rectangle(this.x, this.y, missileImage.getWidth(null), missileImage.getHeight(null));
