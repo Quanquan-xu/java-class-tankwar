@@ -74,17 +74,23 @@ public class Tank {
     }
 
     private void fire() {
-        Missile missile = new Missile(this.x, this.y, this.direction, this.isEnemy);
-        GameClient.getInstance().getMissiles().add(missile);
-        Toolkit.playAudioSound("shoot",".wav");
+        if (this.isAlive){
+            Missile missile = new Missile(this.x, this.y, this.direction, this.isEnemy);
+            GameClient.getInstance().getMissiles().add(missile);
+            Toolkit.playAudioSound("shoot",".wav");
+        }
+
     }
     private void superFire(){
-        for(Direction direction: Direction.values()){
-            Missile missile = new Missile(this.x, this.y, direction, this.isEnemy);
-            GameClient.getInstance().getMissiles().add(missile);
+        if (this.isAlive){
+            for(Direction direction: Direction.values()){
+                Missile missile = new Missile(this.x, this.y, direction, this.isEnemy);
+                GameClient.getInstance().getMissiles().add(missile);
+            }
+            String fileExtension = new Random().nextBoolean()? ".wav": ".aiff";
+            Toolkit.playAudioSound("supershoot", fileExtension);
         }
-        String fileExtension = new Random().nextBoolean()? ".wav": ".aiff";
-        Toolkit.playAudioSound("supershoot", fileExtension);
+
     }
 
     public void drawTank(Graphics g) {
@@ -205,6 +211,11 @@ public class Tank {
     public int getY() {
         return y;
     }
+
+    public int getHealthPoints() {
+        return healthPoints;
+    }
+
     private void drawHealthPoints(Graphics g){
         g.setColor(Color.WHITE);
         g.fillRect(this.x,this.y-10,this.getTankImage().getWidth(null),10);
