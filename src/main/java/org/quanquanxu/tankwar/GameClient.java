@@ -77,9 +77,13 @@ public class GameClient extends JComponent {
         g.setFont(new Font(null, Font.BOLD, 12));
         g.drawString("Missiles : " + this.missiles.size(), 10, 20);
         g.drawString("Explosions : " + this.explosions.size(), 10, 40);
-        g.drawString("Player Tank HP : " + this.playerTank.getHealthPoints(), 10, 60);
-        g.drawString("Enemy Tanks Left : " + this.enemyTanks.size(), 10, 80);
+        g.drawString("Enemy Tanks Left : " + this.enemyTanks.size(), 10, 60);
+        g.setColor(Color.RED);
+        g.drawString("Player Tank HP : " + this.playerTank.getHealthPoints(), 10, 80);
         g.drawString("Enemy Tanks Killed : " + this.enemyTankKilled.get(), 10, 100);
+        g.setColor(Color.WHITE);
+        g.drawImage(Toolkit.getFormatImage("tree","","",".png"),720,10, null);
+        g.drawImage(Toolkit.getFormatImage("tree","","",".png"),10,520, null);
 
     }
 
@@ -109,7 +113,6 @@ public class GameClient extends JComponent {
         g.fillRect(0, 0, 800, 600);
         super.paintComponent(g);
         if (this.playerTank.isAlive()) {
-            this.drawGameInfo(g);
             this.playerTank.drawTank(g);
             for (Wall wall : this.walls) {
                 wall.drawWall(g);
@@ -117,8 +120,6 @@ public class GameClient extends JComponent {
             int tankBefore = this.enemyTanks.size();
             this.enemyTanks.removeIf(tank -> !tank.isAlive());
             int killedTank = tankBefore - this.enemyTanks.size();
-            g.drawString("Enemy Tanks Killed : " + killedTank, 10, 120);
-
             this.enemyTankKilled.addAndGet(killedTank);
             if (this.enemyTanks.isEmpty()) {
                 this.initEnemyTank();
@@ -134,6 +135,8 @@ public class GameClient extends JComponent {
             for (Explosion explosion : explosions) {
                 explosion.drawExplosion(g);
             }
+            this.drawGameInfo(g);
+
         } else {
             this.gameOver(g);
         }
