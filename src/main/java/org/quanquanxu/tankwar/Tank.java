@@ -29,6 +29,9 @@ public class Tank {
         String prefix = this.isEnemy? "e": "";
         return Toolkit.getFormatImage(name, prefix, this.direction.getAbbrev(), ".gif");
     }
+    public Save.TankPosition getPosition(){
+        return new Save.TankPosition(this.x, this.y, this.direction);
+    }
     public void keyPressed(KeyEvent e){
         switch (e.getKeyCode()){
             case KeyEvent.VK_UP:

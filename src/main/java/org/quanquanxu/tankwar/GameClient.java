@@ -1,15 +1,21 @@
 package org.quanquanxu.tankwar;
 
+import com.alibaba.fastjson.JSON;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class GameClient extends JComponent {
     private static final int gameBoardWidth = 800;
@@ -152,7 +158,15 @@ public class GameClient extends JComponent {
             this.initEnemyTank();
         }
     }
-
+    void save() throws IOException {
+        Save save = new Save(this.playerTank.isAlive(),
+                this.playerTank.getPosition(),
+                this.enemyTanks.stream().filter(Tank::isAlive)
+                               .map(Tank::getPosition).collect(Collectors.toList()));
+        try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("game.sav")))){
+            out.println(JSON.toJSONString(save,true));
+        }
+    }
     public static void main(String[] args) {
         com.sun.javafx.application.PlatformImpl.startup(() -> {
         });
@@ -172,6 +186,20 @@ public class GameClient extends JComponent {
             @Override
             public void keyReleased(KeyEvent e) {
                 client.playerTank.keyReleased(e);
+            }
+        });
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                try {
+                    client.save();
+                    System.exit(0);
+                }catch (IOException ex){
+                    JOptionPane.showMessageDialog(null,"Fail to save current game",
+                            "Oops! Something Error", JOptionPane.ERROR_MESSAGE);
+                    ex.printStackTrace();
+                    System.exit(4);
+                }
             }
         });
         frame.setVisible(true);
