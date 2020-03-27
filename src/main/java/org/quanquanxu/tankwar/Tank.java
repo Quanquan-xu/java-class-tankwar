@@ -1,8 +1,5 @@
 package org.quanquanxu.tankwar;
 
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.List;
@@ -15,7 +12,9 @@ public class Tank {
     private boolean isEnemy;
     private Direction direction;
     private boolean isAlive = true;
-    private int healthPoints = 100;
+    private static final int MAX_HEALTH_POINTS = 100;
+    private static final Random random = new Random();
+    private int healthPoints = MAX_HEALTH_POINTS;
     public Tank(int x, int y, Direction direction){
         this(x,y,direction, true);
     }
@@ -50,7 +49,7 @@ public class Tank {
             case KeyEvent.VK_A:
                 this.superFire();
                 break;
-            case KeyEvent.VK_S:
+            case KeyEvent.VK_ENTER:
                 GameClient.getInstance().restart();
                 break;
         }
@@ -98,13 +97,15 @@ public class Tank {
         int previousY = this.y;
         this.determineTankDirection();
         this.moveTank();
-        boolean isCollided = this.detectIntersection();
-        if (isCollided){
+        Rectangle tankBorder = this.getTankBorder();
+        if (this.detectIntersection(tankBorder)){
             this.x = previousX;
             this.y = previousY;
         }
         if(!this.isEnemy){
+            this.reviveHealthPoints();
             this.drawHealthPoints(g);
+            this.drawPetCamel(g);
         }
         g.drawImage(this.getTankImage(), this.x, this.y, null);
     }
@@ -160,15 +161,14 @@ public class Tank {
             this.y = tankYMaxBorder;
         }
     }
-    private boolean detectIntersection(){
+    private boolean detectIntersection(Rectangle elementBorder){
         boolean isIntersected = false;
-        Rectangle tankBorder = this.getTankBorder();
         List<Wall> walls = GameClient.getInstance().getWalls();
         List<Tank> enemyTanks = GameClient.getInstance().getEnemyTanks();
         Tank playerTank = GameClient.getInstance().getPlayerTank();
         for (Wall wall : walls){
             Rectangle wallBorder = wall.getWallBorder();
-            if(wallBorder.intersects(tankBorder)){
+            if(wallBorder.intersects(elementBorder)){
                 isIntersected = true;
                 break;
             }
@@ -176,14 +176,14 @@ public class Tank {
         if (!isIntersected){
             for(Tank enemyTank: enemyTanks){
                 Rectangle enemyTankBorder = enemyTank.getTankBorder();
-                if(enemyTank!= this && enemyTankBorder.intersects(tankBorder)){
+                if(enemyTank!= this && enemyTankBorder.intersects(elementBorder)){
                     isIntersected = true;
                     break;
                 }
             }
             if(this.isEnemy){
                 Rectangle playerTankBorder = playerTank.getTankBorder();
-                if(tankBorder.intersects(playerTankBorder)){
+                if(elementBorder.intersects(playerTankBorder)){
                     isIntersected = true;
                 }
             }
@@ -203,6 +203,9 @@ public class Tank {
     public boolean isAlive() {
         return isAlive;
     }
+    public boolean isDying(){
+        return this.healthPoints <= 20;
+    }
 
     public int getX() {
         return x;
@@ -217,19 +220,57 @@ public class Tank {
     }
 
     private void drawHealthPoints(Graphics g){
+        int healthPointsX = this.x;
+        int healthPointsY = this.y - 10;
+        Rectangle healthPointBorder = new Rectangle(healthPointsX, healthPointsY, this.getTankImage().getWidth(null), 10);
+        if(this.detectIntersection(healthPointBorder)){
+            healthPointsX = this.x;
+            healthPointsY = this.y + this.getTankImage().getHeight(null);
+            healthPointBorder = new Rectangle(healthPointsX, healthPointsY, this.getTankImage().getWidth(null), 10);
+            if(this.detectIntersection(healthPointBorder)){
+                return;
+            }
+        }
         g.setColor(Color.WHITE);
-        g.fillRect(this.x,this.y-10,this.getTankImage().getWidth(null),10);
+        g.fillRect(healthPointsX,healthPointsY,this.getTankImage().getWidth(null),10);
         g.setColor(Color.RED);
         int healthPointsWidth = healthPoints*this.getTankImage().getWidth(null)/100;
-        g.fillRect(this.x,this.y-10,healthPointsWidth,10);
+        g.fillRect(healthPointsX,healthPointsY,healthPointsWidth,10);
+    }
+    private void drawPetCamel(Graphics g){
+        Image petCamelImage = Toolkit.getFormatImage("pet-camel","","",".gif");
+        int petCamelX = this.x - petCamelImage.getWidth(null)-4;
+        int petCamelY = this.y;
+        Rectangle petCamelBorder = new Rectangle(petCamelX, petCamelY, petCamelImage.getWidth(null), petCamelImage.getHeight(null));
+        if(! this.detectIntersection(petCamelBorder)){
+            g.drawImage(petCamelImage, petCamelX, petCamelY, null);
+        }else {
+            petCamelX = this.x + this.getTankImage().getWidth(null)+4;
+            petCamelY = this.y;
+            petCamelBorder = new Rectangle(petCamelX, petCamelY, petCamelImage.getWidth(null), petCamelImage.getHeight(null));
+            if(!this.detectIntersection(petCamelBorder)){
+                g.drawImage(petCamelImage, petCamelX, petCamelY, null);
+            }
+        }
+    }
+    private void reviveHealthPoints(){
+        Blood blood = GameClient.getInstance().getBlood();
+        if(blood.isAlive()){
+            Rectangle tankBorder = this.getTankBorder();
+            Rectangle bloodBorder = blood.getBorder();
+            if(tankBorder.intersects(bloodBorder)){
+                this.healthPoints = MAX_HEALTH_POINTS;
+                blood.destroy();
+                Toolkit.playAudioSound("revive", ".wav");
+            }
+        }
     }
     public void removeHealthPoints(){
-        this.healthPoints -= 20;
+        this.healthPoints -= 10;
         if (this.healthPoints <= 0){
             this.destroyTank();
         }
     }
-    private final Random random = new Random();
     private int step = random.nextInt(12) + 3;
     public void actRandomly() {
         Direction [] dirs = Direction.values();
@@ -239,7 +280,6 @@ public class Tank {
             if (random.nextBoolean()){
                 this.fire();
             }
-            //this.moveTank();
         }
         step--;
     }
